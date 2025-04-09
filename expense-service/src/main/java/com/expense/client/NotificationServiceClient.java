@@ -1,0 +1,22 @@
+package com.expense.client;
+
+
+import java.math.BigDecimal;
+
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+@FeignClient(name = "notification-service", url = "${notification.service.url}")
+public interface NotificationServiceClient {
+
+ @PostMapping("/api/v1/notifications")
+ void createNotification(
+         @RequestParam Long userId,
+         @RequestParam String type,
+         @RequestParam String message,
+         @RequestParam String category,
+         @RequestParam BigDecimal budgetAmount,
+         @RequestParam BigDecimal expenseAmount,
+         @RequestParam String expenseDescription);
+}

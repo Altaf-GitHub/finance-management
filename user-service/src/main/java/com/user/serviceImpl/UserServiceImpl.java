@@ -1,0 +1,64 @@
+package com.user.serviceImpl;
+
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Service;
+
+import com.user.dto.UserRequest;
+import com.user.dto.UserResponse;
+import com.user.entity.User;
+import com.user.exception.UserNotFoundException;
+import com.user.repository.UserRepository;
+import com.user.service.UserService;
+
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+public class UserServiceImpl implements UserService {
+
+ private final UserRepository userRepository;
+ private final ModelMapper modelMapper;
+
+ @Override
+ public UserResponse createUser(UserRequest userRequest) {
+     User user = modelMapper.map(userRequest, User.class);
+     User savedUser = userRepository.save(user);
+     return modelMapper.map(savedUser, UserResponse.class);
+ }
+
+ @Override
+ public UserResponse getUserById(Long id) {
+     User user = userRepository.findById(id)
+             .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
+     return modelMapper.map(user, UserResponse.class);
+ }
+
+ @Override
+ public List<UserResponse> getAllUsers() {
+     return userRepository.findAll().stream()
+             .map(user -> modelMapper.map(user, UserResponse.class))
+             .collect(Collectors.toList());
+ }
+
+ @Override
+ public UserResponse updateUser(Long id, UserRequest userRequest) {
+     User existingUser = userRepository.findById(id)
+             .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
+     
+     modelMapper.map(userRequest, existingUser);
+     User updatedUser = userRepository.save(existingUser);
+     return modelMapper.map(updatedUser, UserResponse.class);
+ }
+
+ @Override
+ public void deleteUser(Long id) {
+     if (!userRepository.existsById(id)) {
+         throw new UserNotFoundException("User not found with id: " + id);
+     }
+     userRepository.deleteById(id);
+ }
+}

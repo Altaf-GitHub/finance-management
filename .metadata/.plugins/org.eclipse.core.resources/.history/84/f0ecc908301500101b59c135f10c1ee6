@@ -1,0 +1,60 @@
+package com.expense;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import com.expense.entity.Expense;
+import com.expense.repository.ExpenseRepository;
+
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
+
+@SpringBootTest
+@Transactional
+class ExpenseServiceApplicationTests {
+
+
+    @Autowired
+    private ExpenseRepository expenseRepository;
+
+    @Autowired
+    private EntityManager entityManager;
+
+    // Helper method to create test expenses
+    private void createExpense(Long userId, String category, BigDecimal amount, LocalDate date) {
+        Expense expense = new Expense();
+        expense.setUserId(userId);
+        expense.setCategory(category);
+        expense.setAmount(amount);
+        expense.setDate(date);
+         entityManager.persist(expense);
+    }
+    
+    @Test
+    void whenMultipleExpensesSameUserCategory_thenGroupAndSum() {
+        // Setup
+        LocalDate testDate = LocalDate.now();
+        createExpense(1L, "Groceries", BigDecimal.valueOf(100), testDate);
+        createExpense(2L, "Groceries", BigDecimal.valueOf(200), testDate);
+
+        // Execute
+        List<Object[]> results = expenseRepository.findExpensesGroupedByUserAndCategory(
+            testDate.minusDays(1), 
+            testDate.plusDays(1)
+        );
+
+        // Verify
+        assertEquals(1, results.size());
+        assertEquals(1L, results.get(0)[0]); // userId
+        assertEquals("Groceries", results.get(0)[1]); // category
+        assertEquals(0, BigDecimal.valueOf(300).compareTo((BigDecimal) results.get(0)[2])); // amount
+    }
+}

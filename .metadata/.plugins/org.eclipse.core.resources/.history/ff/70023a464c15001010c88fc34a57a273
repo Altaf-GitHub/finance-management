@@ -1,0 +1,28 @@
+spring.application.name=api-gateway
+
+# Gateway Server Port
+server.port=8080
+
+
+
+# Eureka Configuration
+eureka.client.service-url.defaultZone=http://localhost:8761/eureka/
+eureka.client.register-with-eureka=true
+eureka.client.fetch-registry=true
+
+# Enable Discovery Locator (optional)
+spring.cloud.gateway.discovery.locator.enabled=true
+spring.cloud.gateway.discovery.locator.lower-case-service-id=true
+
+# Static Routes (if not using discovery locator)
+spring.cloud.gateway.routes[0].id=budget-service
+spring.cloud.gateway.routes[0].uri=lb://BUDGET-SERVICE
+spring.cloud.gateway.routes[0].predicates[0]=Path=/budget/**
+
+spring.cloud.gateway.routes[1].id=expense-service
+spring.cloud.gateway.routes[1].uri=lb://EXPENSE-SERVICE
+spring.cloud.gateway.routes[1].predicates[0]=Path=/expense/**
+
+spring.cloud.gateway.routes[2].id=notification-service
+spring.cloud.gateway.routes[2].uri=lb://NOTIFICATION-SERVICE
+spring.cloud.gateway.routes[2].predicates[0]=Path=/notification/**

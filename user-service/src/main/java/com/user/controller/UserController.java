@@ -1,0 +1,104 @@
+package com.user.controller;
+
+
+
+import java.util.List;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.user.dto.UserRequest;
+import com.user.dto.UserResponse;
+import com.user.service.UserService;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+
+@RestController
+@RequestMapping("/api/v1/users")
+@RequiredArgsConstructor
+@Tag(
+        name = "CRUD REST APIs for User Resource",
+        description = "CRUD REST APIs - Create User, Update User, Get User, Get All Users, Delete User"
+)
+public class UserController {
+
+ private final UserService userService;
+
+ @Operation(
+         summary = "Create User REST API",
+         description = "Create User REST API is used to save user in a database"
+ )
+ @ApiResponse(
+         responseCode = "201",
+         description = "HTTP Status 201 CREATED"
+ )
+ @PostMapping
+ @ResponseStatus(HttpStatus.CREATED)
+ public UserResponse createUser(@RequestBody UserRequest userRequest) {
+     return userService.createUser(userRequest);
+ }
+
+ @Operation(
+         summary = "Create User REST API",
+         description = "Create User REST API is used to save user in a database"
+ )
+ @ApiResponse(
+         responseCode = "201",
+         description = "HTTP Status 201 CREATED"
+ )
+ @GetMapping("/{id}")
+ public UserResponse getUserById(@PathVariable Long id) {
+     return userService.getUserById(id);
+ }
+
+ @Operation(
+         summary = "Create User REST API",
+         description = "Create User REST API is used to save user in a database"
+ )
+ @ApiResponse(
+         responseCode = "201",
+         description = "HTTP Status 201 CREATED"
+ )
+ @GetMapping
+ public List<UserResponse> getAllUsers() {
+     return userService.getAllUsers();
+ }
+
+ @Operation(
+         summary = "Create User REST API",
+         description = "Create User REST API is used to save user in a database"
+ )
+ @ApiResponse(
+         responseCode = "201",
+         description = "HTTP Status 201 CREATED"
+ )
+ @PutMapping("/{id}")
+ public UserResponse updateUser(@PathVariable Long id, @RequestBody UserRequest userRequest) {
+     return userService.updateUser(id, userRequest);
+ }
+
+ @Operation(
+         summary = "Create User REST API",
+         description = "Create User REST API is used to save user in a database"
+ )
+ @ApiResponse(
+         responseCode = "201",
+         description = "HTTP Status 201 CREATED"
+ )
+ @DeleteMapping("/{id}")
+ @ResponseStatus(HttpStatus.NO_CONTENT)
+ public void deleteUser(@PathVariable Long id) {
+     userService.deleteUser(id);
+ }
+}

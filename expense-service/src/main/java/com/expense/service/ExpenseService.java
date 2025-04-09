@@ -1,0 +1,19 @@
+package com.expense.service;
+
+import java.util.List;
+import com.expense.dto.ExpenseRequest;
+import com.expense.dto.ExpenseResponse;
+
+public interface ExpenseService {
+	ExpenseResponse createExpense(ExpenseRequest expenseRequest);
+
+	ExpenseResponse getExpenseById(Long id);
+
+	List<ExpenseResponse> getAllExpensesByUserId(Long userId);
+
+	List<ExpenseResponse> getExpensesByUserIdAndCategory(Long userId, String category);
+
+	ExpenseResponse updateExpense(Long id, ExpenseRequest expenseRequest);
+
+	void deleteExpense(Long id);
+}

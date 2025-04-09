@@ -1,0 +1,5 @@
+package com.budget.service;
+
+public interface BudgetService {
+
+}
