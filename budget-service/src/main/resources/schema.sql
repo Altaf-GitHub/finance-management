@@ -1,0 +1,7 @@
+CREATE TABLE budgets (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    category VARCHAR(255) NOT NULL,
+    amount DECIMAL(19, 2) NOT NULL,
+    period VARCHAR(50) NOT NULL
+);

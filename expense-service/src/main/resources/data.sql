@@ -14,4 +14,7 @@ INSERT INTO expenses (user_id, category, description, amount, date) VALUES
 -- Previous month expenses
 INSERT INTO expenses (user_id, category, description, amount, date) VALUES
 (1, 'Groceries', 'Monthly bulk purchase', 200.00, DATEADD('MONTH', -1, CURRENT_DATE)),
-(2, 'Entertainment', 'Concert tickets', 150.00, DATEADD('MONTH', -1, CURRENT_DATE));
+(2, 'Entertainment', 'Concert tickets', 150.00, DATEADD('MONTH', -1, CURRENT_DATE)),
+(3, 'Entertainment', 'Concert tickets', 150.00, DATEADD('MONTH', -1, CURRENT_DATE)),
+(4, 'Entertainment', 'Concert tickets', 150.00, DATEADD('MONTH', -1, CURRENT_DATE)),
+(5, 'Entertainment', 'Concert tickets', 150.00, DATEADD('MONTH', -1, CURRENT_DATE));

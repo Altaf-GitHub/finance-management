@@ -14,6 +14,7 @@ import com.budget.exception.BudgetNotFoundException;
 import com.budget.repository.BudgetRepository;
 import com.budget.service.BudgetService;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -23,11 +24,29 @@ public class BudgetServiceImpl implements BudgetService {
 	private final BudgetRepository budgetRepository;
 	private final ModelMapper modelMapper;
 
+//	@Override
+//	public BudgetResponse createBudget(BudgetRequest budgetRequest) {
+//		
+//		
+//		Budget budget = modelMapper.map(budgetRequest, Budget.class);
+//		Budget savedBudget = budgetRepository.save(budget);
+//		return modelMapper.map(savedBudget, BudgetResponse.class);
+//	}
+	
 	@Override
 	public BudgetResponse createBudget(BudgetRequest budgetRequest) {
-		Budget budget = modelMapper.map(budgetRequest, Budget.class);
-		Budget savedBudget = budgetRepository.save(budget);
-		return modelMapper.map(savedBudget, BudgetResponse.class);
+	    // Explicitly map BudgetRequest to Budget and skip the 'id' field
+	    modelMapper.typeMap(BudgetRequest.class, Budget.class)
+	        .addMappings(mapper -> mapper.skip(Budget::setId)); // Skip the 'id' field
+
+	    // Map the BudgetRequest to the Budget entity
+	    Budget budget = modelMapper.map(budgetRequest, Budget.class);
+
+	    // Save the budget to the database
+	    Budget savedBudget = budgetRepository.save(budget);
+
+	    // Map the saved budget entity to BudgetResponse
+	    return modelMapper.map(savedBudget, BudgetResponse.class);
 	}
 
 	@Override

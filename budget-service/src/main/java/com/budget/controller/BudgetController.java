@@ -34,12 +34,6 @@ public class BudgetController {
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	  @Operation(summary = "Create a new budget")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Budget created successfully"),
-            @ApiResponse(responseCode = "400", description = "Invalid input"),
-            @ApiResponse(responseCode = "409", description = "Budget already exists for this user and category")
-    })
 	public BudgetResponse createBudget(@RequestBody BudgetRequest budgetRequest) {
 		return budgetService.createBudget(budgetRequest);
 	}

@@ -25,6 +25,8 @@ public class NotificationServiceImpl implements NotificationService {
 
 	@Override
 	public NotificationResponse createNotification(NotificationRequest notificationRequest) {
+		modelMapper.typeMap(NotificationRequest.class, Notification.class)
+        .addMappings(mapper -> mapper.skip(Notification::setId));
 		Notification notification = modelMapper.map(notificationRequest, Notification.class);
 		notification.setCreatedAt(LocalDateTime.now());
 		notification.setRead(false);

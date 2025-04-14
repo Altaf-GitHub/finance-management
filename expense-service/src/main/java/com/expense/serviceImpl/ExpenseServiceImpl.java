@@ -24,6 +24,8 @@ public class ExpenseServiceImpl implements ExpenseService {
 
 	@Override
 	public ExpenseResponse createExpense(ExpenseRequest expenseRequest) {
+		modelMapper.typeMap(ExpenseRequest.class, Expense.class)
+        .addMappings(mapper -> mapper.skip(Expense::setId));
 		Expense expense = modelMapper.map(expenseRequest, Expense.class);
 		Expense savedExpense = expenseRepository.save(expense);
 		return modelMapper.map(savedExpense, ExpenseResponse.class);
