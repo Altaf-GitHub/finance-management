@@ -1,5 +1,0 @@
-package com.notification.exception;
-
-public interface NotificationNotFoundException {
-
-}

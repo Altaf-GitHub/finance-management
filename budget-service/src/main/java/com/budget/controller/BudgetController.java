@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -60,25 +61,14 @@ public class BudgetController {
 	}
 
 	@PutMapping("/{id}")
-	 @Operation(summary = "Update budget by ID")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Budget updated successfully"),
-            @ApiResponse(responseCode = "400", description = "Invalid input"),
-            @ApiResponse(responseCode = "404", description = "Budget not found")
-    })
 	public BudgetResponse updateBudget(@PathVariable Long id, @RequestBody BudgetRequest budgetRequest) {
 		return budgetService.updateBudget(id, budgetRequest);
 	}
 
 	@DeleteMapping("/{id}")
-	@ResponseStatus(HttpStatus.NO_CONTENT)
-	 @Operation(summary = "Delete budget by ID")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Budget deleted successfully"),
-            @ApiResponse(responseCode = "404", description = "Budget not found")
-    })
-	public void deleteBudget(@PathVariable Long id) {
-		budgetService.deleteBudget(id);
+	public ResponseEntity<String> deleteBudget(@PathVariable Long id) {
+	    budgetService.deleteBudget(id);
+	    return ResponseEntity.ok("Budget deleted successfully");
 	}
 	
 	 @GetMapping("/user/{userId}/category/{category}")

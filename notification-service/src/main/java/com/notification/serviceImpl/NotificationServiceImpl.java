@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import com.notification.config.NotificationMapper;
 import com.notification.dto.NotificationRequest;
 import com.notification.dto.NotificationResponse;
 import com.notification.entity.Notification;
@@ -21,40 +22,85 @@ import lombok.RequiredArgsConstructor;
 public class NotificationServiceImpl implements NotificationService {
 
 	private final NotificationRepository notificationRepository;
-	private final ModelMapper modelMapper;
+	private final NotificationMapper notificationMapper;
 
-	@Override
-	public NotificationResponse createNotification(NotificationRequest notificationRequest) {
-		modelMapper.typeMap(NotificationRequest.class, Notification.class)
-        .addMappings(mapper -> mapper.skip(Notification::setId));
-		Notification notification = modelMapper.map(notificationRequest, Notification.class);
-		notification.setCreatedAt(LocalDateTime.now());
-		notification.setRead(false);
-		Notification savedNotification = notificationRepository.save(notification);
-		return modelMapper.map(savedNotification, NotificationResponse.class);
-	}
+	/*
+	 * @Override public NotificationResponse createNotification(NotificationRequest
+	 * notificationRequest) { modelMapper.typeMap(NotificationRequest.class,
+	 * Notification.class) .addMappings(mapper -> mapper.skip(Notification::setId));
+	 * Notification notification = modelMapper.map(notificationRequest,
+	 * Notification.class); notification.setCreatedAt(LocalDateTime.now());
+	 * notification.setRead(false); Notification savedNotification =
+	 * notificationRepository.save(notification); return
+	 * modelMapper.map(savedNotification, NotificationResponse.class); }
+	 */
+	
 
-	@Override
-	public List<NotificationResponse> getAllNotificationsByUserId(Long userId) {
-		return notificationRepository.findByUserId(userId).stream()
-				.map(notification -> modelMapper.map(notification, NotificationResponse.class))
-				.collect(Collectors.toList());
-	}
+    @Override
+    public NotificationResponse createNotification(NotificationRequest notificationRequest) {
+        Notification notification = notificationMapper.toEntity(notificationRequest);
+        Notification savedNotification = notificationRepository.save(notification);
+        return notificationMapper.toResponse(savedNotification);
+    }
+    
 
-	@Override
-	public List<NotificationResponse> getUnreadNotificationsByUserId(Long userId) {
-		return notificationRepository.findByUserIdAndReadFalse(userId).stream()
-				.map(notification -> modelMapper.map(notification, NotificationResponse.class))
-				.collect(Collectors.toList());
-	}
+	/*
+	 * @Override public List<NotificationResponse> getAllNotificationsByUserId(Long
+	 * userId) { return notificationRepository.findByUserId(userId).stream()
+	 * .map(notification -> modelMapper.map(notification,
+	 * NotificationResponse.class)) .collect(Collectors.toList()); }
+	 */
+    
+    @Override
+    public List<NotificationResponse> getAllNotificationsByUserId(Long userId) {
+        return notificationRepository.findByUserId(userId).stream()
+                .map(notificationMapper::toResponse)
+                .collect(Collectors.toList());
+    }
+    
+    
+	/*
+	 * @Override public List<NotificationResponse>
+	 * getUnreadNotificationsByUserId(Long userId) { return
+	 * notificationRepository.findByUserIdAndReadFalse(userId).stream()
+	 * .map(notification -> modelMapper.map(notification,
+	 * NotificationResponse.class)) .collect(Collectors.toList()); }
+	 */
+    
+    @Override
+    public List<NotificationResponse> getUnreadNotificationsByUserId(Long userId) {
+        return notificationRepository.findByUserIdAndReadFalse(userId).stream()
+                .map(notificationMapper::toResponse)
+                .collect(Collectors.toList());
+    }
+    
+    
+	/*
+	 * @Override public NotificationResponse markAsRead(Long id) { Notification
+	 * notification = notificationRepository.findById(id) .orElseThrow(() -> new
+	 * NotificationNotFoundException("Notification not found with id: " + id));
+	 * 
+	 * notification.setRead(true); Notification updatedNotification =
+	 * notificationRepository.save(notification); return
+	 * modelMapper.map(updatedNotification, NotificationResponse.class); }
+	 */
+    
+    @Override
+    public NotificationResponse markAsRead(Long id) {
+        Notification notification = notificationRepository.findById(id)
+                .orElseThrow(() -> new NotificationNotFoundException("Notification not found with id: " + id));
 
-	@Override
-	public NotificationResponse markAsRead(Long id) {
-		Notification notification = notificationRepository.findById(id)
-				.orElseThrow(() -> new NotificationNotFoundException("Notification not found with id: " + id));
+        notification.setRead(true);
+        Notification updatedNotification = notificationRepository.save(notification);
+        return notificationMapper.toResponse(updatedNotification);
+    }
+    
+    @Override
+    public void deleteNotification(Long id) {
+    	if (!notificationRepository.existsById(id)) {
+    		throw new NotificationNotFoundException("Notification not found with id: " + id);
+    	}
+    	notificationRepository.deleteById(id);
+    }
 
-		notification.setRead(true);
-		Notification updatedNotification = notificationRepository.save(notification);
-		return modelMapper.map(updatedNotification, NotificationResponse.class);
-	}
 }

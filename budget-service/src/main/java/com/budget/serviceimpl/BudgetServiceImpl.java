@@ -4,9 +4,9 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import com.budget.config.BudgetMapper;
 import com.budget.dto.BudgetRequest;
 import com.budget.dto.BudgetResponse;
 import com.budget.entity.Budget;
@@ -14,7 +14,6 @@ import com.budget.exception.BudgetNotFoundException;
 import com.budget.repository.BudgetRepository;
 import com.budget.service.BudgetService;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -22,70 +21,65 @@ import lombok.RequiredArgsConstructor;
 public class BudgetServiceImpl implements BudgetService {
 
 	private final BudgetRepository budgetRepository;
-	private final ModelMapper modelMapper;
+	private final BudgetMapper budgetMapper;
 
-//	@Override
-//	public BudgetResponse createBudget(BudgetRequest budgetRequest) {
-//		
-//		
-//		Budget budget = modelMapper.map(budgetRequest, Budget.class);
-//		Budget savedBudget = budgetRepository.save(budget);
-//		return modelMapper.map(savedBudget, BudgetResponse.class);
-//	}
+	@Override
+    public BudgetResponse createBudget(BudgetRequest budgetRequest) {
+        Budget budget = budgetMapper.toEntity(budgetRequest);
+        Budget savedBudget = budgetRepository.save(budget);
+        return budgetMapper.toResponse(savedBudget);
+    }
+	
 	
 	@Override
-	public BudgetResponse createBudget(BudgetRequest budgetRequest) {
-	    // Explicitly map BudgetRequest to Budget and skip the 'id' field
-	    modelMapper.typeMap(BudgetRequest.class, Budget.class)
-	        .addMappings(mapper -> mapper.skip(Budget::setId)); // Skip the 'id' field
-
-	    // Map the BudgetRequest to the Budget entity
-	    Budget budget = modelMapper.map(budgetRequest, Budget.class);
-
-	    // Save the budget to the database
-	    Budget savedBudget = budgetRepository.save(budget);
-
-	    // Map the saved budget entity to BudgetResponse
-	    return modelMapper.map(savedBudget, BudgetResponse.class);
-	}
-
-	@Override
 	public BudgetResponse getBudgetById(Long id) {
-		Budget budget = budgetRepository.findById(id)
-				.orElseThrow(() -> new BudgetNotFoundException("Budget not found with id: " + id));
-		return modelMapper.map(budget, BudgetResponse.class);
+	    Budget budget = budgetRepository.findById(id)
+	            .orElseThrow(() -> new BudgetNotFoundException("Budget not found with id: " + id));
+	    
+	    return budgetMapper.toResponse(budget); // ✅ using custom mapper
 	}
 
+
+	
 	@Override
 	public List<BudgetResponse> getAllBudgetsByUserId(Long userId) {
-		return budgetRepository.findByUserId(userId).stream()
-				.map(budget -> modelMapper.map(budget, BudgetResponse.class)).collect(Collectors.toList());
+	    return budgetRepository.findByUserId(userId).stream()
+	            .map(budgetMapper::toResponse)
+	            .collect(Collectors.toList());
 	}
+
+
 
 	@Override
 	public BudgetResponse updateBudget(Long id, BudgetRequest budgetRequest) {
-		Budget existingBudget = budgetRepository.findById(id)
-				.orElseThrow(() -> new BudgetNotFoundException("Budget not found with id: " + id));
+	    Budget existingBudget = budgetRepository.findById(id)
+	            .orElseThrow(() -> new BudgetNotFoundException("Budget not found with id: " + id));
 
-		modelMapper.map(budgetRequest, existingBudget);
-		Budget updatedBudget = budgetRepository.save(existingBudget);
-		return modelMapper.map(updatedBudget, BudgetResponse.class);
+	    // 🔁 Use custom mapper to update only specific fields safely
+	    budgetMapper.updateBudgetFromDto(budgetRequest, existingBudget);
+
+	    Budget updatedBudget = budgetRepository.save(existingBudget);
+	    return budgetMapper.toResponse(updatedBudget);
 	}
 
 	@Override
 	public void deleteBudget(Long id) {
-		if (!budgetRepository.existsById(id)) {
-			throw new BudgetNotFoundException("Budget not found with id: " + id);
-		}
-		budgetRepository.deleteById(id);
+	    Budget budget = budgetRepository.findById(id)
+	            .orElseThrow(() -> new BudgetNotFoundException("Budget not found with id: " + id));
+	    
+	    budgetRepository.delete(budget);
 	}
-	
+
+	//If returning 0 is not ideal for your use case (e.g. budget must exist), you could do:
 	@Override
-    public BigDecimal getBudgetAmountForUserAndCategory(Long userId, String category) {
-        return budgetRepository.findByUserIdAndCategory(userId, category)
-                .stream()
-                .findFirst() // Get the first matching budget (assuming one budget per category)
-                .map(Budget::getAmount)
-                .orElse(BigDecimal.ZERO); // Return 0 if no budget exists
-    }
+	public BigDecimal getBudgetAmountForUserAndCategory(Long userId, String category) {
+	    return budgetRepository.findByUserIdAndCategory(userId, category)
+	            .stream()
+	            .findFirst()
+	            .map(Budget::getAmount)
+	            .orElseThrow(() -> new BudgetNotFoundException(
+	                "No budget found for userId: " + userId + " and category: " + category
+	            ));
+	}
+
 }

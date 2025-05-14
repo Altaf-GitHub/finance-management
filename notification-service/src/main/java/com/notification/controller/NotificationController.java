@@ -1,7 +1,9 @@
 package com.notification.controller;
 
 import java.util.List;
+
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -43,5 +45,11 @@ public class NotificationController {
 	@PutMapping("/{id}/mark-as-read")
 	public NotificationResponse markAsRead(@PathVariable Long id) {
 		return notificationService.markAsRead(id);
+	}
+	
+	@DeleteMapping("/{id}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void deleteNotification(@PathVariable Long id) {
+		notificationService.deleteNotification(id);
 	}
 }

@@ -12,4 +12,7 @@ public interface NotificationService {
 	List<NotificationResponse> getUnreadNotificationsByUserId(Long userId);
 
 	NotificationResponse markAsRead(Long id);
+	
+	void deleteNotification(Long id);
+
 }
